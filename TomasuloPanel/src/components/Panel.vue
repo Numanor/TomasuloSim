@@ -105,8 +105,8 @@
                 label="REG">
               </el-table-column>
               <el-table-column
-                prop=status
-                label="STATUS">
+                prop=state
+                label="STATE">
               </el-table-column>
             </el-table>
           </el-col>
