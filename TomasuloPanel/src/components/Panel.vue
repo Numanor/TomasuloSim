@@ -17,7 +17,9 @@
             action="/api/upload"
             :show-file-list="false"
             :disabled="isloading"
-            :data="upload_setting">
+            :data="upload_setting"
+            :on-success="handleRes"
+            :on-error="handleFail">
             <el-button :type="upload_btn_status" round>Click to upload</el-button>
             <div slot="tip" class="el-upload__tip">NEL code file ('*.nel')</div>
           </el-upload>
@@ -47,7 +49,8 @@
         </el-table>
         <el-row>
           <span>Input cycle to get corresponding info</span>
-          <el-input-number v-model="cycle" :min="0" :max="maxcycle" :precision="0"></el-input-number>
+          <el-input-number v-model="cycle" :min="mincycle" :max="maxcycle" :precision="0"></el-input-number>
+          <span>(total: {{maxcycle}})</span>
         </el-row>
         <el-table :data="RSs" max-height="500">
           <el-table-column
@@ -157,8 +160,10 @@ export default {
       instrs: [],
       cycle: 0,
       maxcycle: 0,
-      REGs: [],
+      mincycle: 0,
+      cycleRecords: [],
       LBs: [],
+      REGs: [],
       RSs: []
     }
   },
@@ -166,7 +171,36 @@ export default {
     submitUpload () {
       this.isloading = true
       this.$refs.upload.submit()
+    },
+    handleRes (response, file, filelist) {
+      this.instrs = response.a
+      this.cycleRecords = response.b
+
+      this.cycle = 1
+      this.mincycle = 1
+      this.maxcycle = response.b.length
       this.isloading = false
+    },
+    handleFail (err, file, fileList) {
+      console.log(err)
+      this.$message.error('Oops, upload err')
+      this.instrs = []
+      this.cycleRecords = []
+      this.cycle = 0
+      this.maxcycle = 0
+      this.mincycle = 0
+      this.isloading = false
+    }
+  },
+  watch: {
+    cycle: function(newcycle, oldcycle) {
+      if (this.cycleRecords.length > 0) {
+        if (this.cycle > 0) {
+          this.REGs = this.cycleRecords[this.cycle-1].reg
+          this.LBs = this.cycleRecords[this.cycle-1].lb
+          this.RSs = this.cycleRecords[this.cycle-1].rs
+        }
+      }
     }
   },
   computed: {

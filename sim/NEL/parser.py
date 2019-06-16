@@ -1,5 +1,4 @@
 # -*- coding=utf-8 -*-
-from 
 from typing import Text, List
 
 # class NELSyntaxError(Error):
@@ -8,42 +7,35 @@ from typing import Text, List
 #         self.instruction = instruction
 #         self.message = message
 
-
-def parse_add(params: List[Text]):
-    
-    pass
-
-def parse_mul(params: List[Text]):
-    pass
-
-def parse_sub(params: List[Text]):
-    pass
-
-def parse_div(params: List[Text]):
-    pass
-
-def parse_ld(params: List[Text]):
-    pass
-
-def parse_jump(params: List[Text]):
-    pass
+def parse_param(params: List[Text]):
+    res = {'params':[]}
+    for param in params:
+        if param[0] is 'F':
+            res['params'].append(int(param[1:], base=10))
+        else:
+            res['params'].append(param)
+    return res
 
 # instruction type
-parse_instr = {
-    'ADD': parse_add,
-    'SUB': parse_sub,
-    'MUL': parse_mul,
-    'DIV': parse_div,
-    'LD': parse_ld,
-    'JUMP': parse_jump
+opnum_instr = {
+    'ADD': 4,
+    'SUB': 4,
+    'MUL': 4,
+    'DIV': 4,
+    'LD': 3,
+    'JUMP': 4
 }
 
 
 
 def parse_instr(line: Text):
     words = line.split(',')
-    if words[0] not in parse_instr:
-        print("UNKNOW instruction!", line)
-        # raise NELSyntaxError(line, "UNKNOW instruction!")
-    return parse_instr[words[0]](words[1:])
+    # if words[0] in opnum_instr:
+    #     if len(words[0]) != opnum_instr[words[0]]:
+    #         print('opnum error!', line)
+    # else:
+    #     print('UNKNOW instruction!', line)
+    ans = parse_param(words[1:])
+    ans['op'] = words[0]
+    return ans
 

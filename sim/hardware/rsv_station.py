@@ -1,6 +1,4 @@
 # -*- coding=utf-8 -*-
-from sim.hardware.register import Reg
-
 
 class RsvStation(object):
     
@@ -8,18 +6,25 @@ class RsvStation(object):
         self.busy = False
         self.instr = None
         self.name = name
-
-    def insert(self, instr):
-        if self.busy:
-            return False
-        else:
-            self.instr = instr
+        self.dst = None
+        self.jump_imm = 0
+        self.jump_dis = 0
+        self.waitedby = []
+        self.result = ''
     
     def getStatus(self):
         return {
             'busy': ('Yes' if self.busy else 'No'),
             'name': self.name
         }
+    
+    def clear(self):
+        self.busy = False
+        self.instr = None
+        self.dst = None
+        self.waitedby.clear()
+        self.jump_int = ''
+        self.jump_dis = ''
 
 # RS for (OPR dstReg srcReg1 srcReg2) type instructions
 class RR_Rsv(RsvStation):
@@ -40,6 +45,25 @@ class RR_Rsv(RsvStation):
         status['qj'] = '' if self.Qj is None else self.Qj.name
         status['qk'] = '' if self.Qk is None else self.Qk.name
         return status
+
+    def updateVal(self, src_rs):
+        if self.Qj is src_rs:
+            self.Qj = None
+            self.Vj = src_rs.result
+        if self.Qk is src_rs:
+            self.Qk = None
+            self.Vk = src_rs.result
+        if self.Qj is None and self.Qk is None:
+            return True
+        return False
+
+    def clear(self):
+        RsvStation.clear(self)
+        self.Op = ''
+        self.Vj = ''
+        self.Vk = ''
+        self.Qj = None
+        self.Qk = None
     
 # Load Buffer
 class LB_Rsv(RsvStation):
@@ -51,3 +75,8 @@ class LB_Rsv(RsvStation):
     def getStatus(self):
         status = RsvStation.getStatus(self)
         status['addr'] = self.addr
+        return status
+
+    def clear(self):
+        RsvStation.clear(self)
+        self.addr = ''

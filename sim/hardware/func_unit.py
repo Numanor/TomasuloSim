@@ -3,9 +3,12 @@
 class FuncUnit(object):
 
     def __init__(self, name):
-        self.instr = None
         self.remain = 0
         self.name = name
+        self.rs = None
+    
+    def clear(self):
+        self.rs = None
 
 class FU_Add(FuncUnit):
 

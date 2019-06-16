@@ -1,5 +1,7 @@
+# -*- coding=utf-8 -*-
 from flask import Flask, render_template, redirect, request, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
+from sim.simr import runSim
 import os
 
 app = Flask(__name__,
@@ -19,8 +21,6 @@ def index():
 
 @app.route('/api/upload', methods=['GET', 'POST', 'OPTION'])
 def upload_file():
-    print(request.values['ars'])
-    print(request.values['mrs'])
     # print(request.values['ars'][1])
     if request.method=='POST':
         print('em')
@@ -40,9 +40,16 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             print(filename)
-            with open('./upload/'+filename) as f:
-                lines = f.readlines()
-            return jsonify({'code':lines})
+            (a,b) = runSim(config={
+                'ars': int(request.values['ars']),
+                'mrs': int(request.values['mrs']),
+                'lb': int(request.values['lb']),
+                'add': int(request.values['add']),
+                'mul': int(request.values['mul']),
+                'ld': int(request.values['ld']),
+                'reg': int(request.values['reg'])
+            }, progFile='./upload/'+filename)
+            return jsonify({'a':a,'b':b})
         # return redirect(url_for('uploaded_file',
         #                         filename=filename))
     return '''
@@ -60,4 +67,6 @@ def upload_file():
 #     with open('./upload/'+filename) as f:
 #         lines = f.readlines()
 #         print(lines)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port='5000', debug=True)
         
